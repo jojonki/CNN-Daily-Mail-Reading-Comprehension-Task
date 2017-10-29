@@ -38,10 +38,7 @@ def load_data(in_file, max_example=None, relabeling=True):
             d_words = [entity_dict[w] if w in entity_dict else w for w in d_words]
             answer = entity_dict[answer]
 
-#             question = ' '.join(q_words)
-#             document = ' '.join(d_words)
-
-        questions.append(q_words) # TODO
+        questions.append(q_words)
         answers.append(answer) 
         documents.append(d_words)
         num_examples += 1
@@ -74,8 +71,7 @@ def build_dict(sentences, max_words=50000):
     # leave 1 to delimiter |||
     return {w[0]: index + 2 for (index, w) in enumerate(ls)}
 
-def vectorize(doc, query, ans, word_dict, entity_dict, doc_maxlen, q_maxlen,
-              sort_by_len=True):
+def vectorize(doc, query, ans, word_dict, entity_dict, doc_maxlen, q_maxlen):
     """
         Vectorize `examples`.
         in_x1, in_x2: sequences for document and question respecitvely.
@@ -87,8 +83,6 @@ def vectorize(doc, query, ans, word_dict, entity_dict, doc_maxlen, q_maxlen,
     in_l = np.zeros((len(doc), len(entity_dict)))#.astype(config._floatX)
     in_y = []
     for idx, (d, q, a) in enumerate(zip(doc, query, ans)):
-#         d_words = d.split(' ')
-#         q_words = q.split(' ')
         assert (a in d)
         seq1 = [word_dict[w] if w in word_dict else 0 for w in d]
         seq1 = seq1[:doc_maxlen]
@@ -103,7 +97,6 @@ def vectorize(doc, query, ans, word_dict, entity_dict, doc_maxlen, q_maxlen,
             in_x1.append(seq1)
             in_x2.append(seq2)
             in_l[idx, [entity_dict[w] for w in d if w in entity_dict]] = 1.0
-#             in_y.append(entity_dict[a] if a in entity_dict else 0)
             y = np.zeros(len(entity_dict))
             if a in entity_dict:
                 y[entity_dict[a]] = 1
@@ -113,13 +106,14 @@ def vectorize(doc, query, ans, word_dict, entity_dict, doc_maxlen, q_maxlen,
     def len_argsort(seq):
         return sorted(range(len(seq)), key=lambda x: len(seq[x]))
 
-#     if sort_by_len:
-#         # sort by the document length
-#         sorted_index = len_argsort(in_x1)
-#         in_x1 = [in_x1[i] for i in sorted_index]
-#         in_x2 = [in_x2[i] for i in sorted_index]
-#         in_l = in_l[sorted_index]
-#         in_y = [in_y[i] for i in sorted_index]
+    # TODO sort by length, see 4.1
+    # if sort_by_len:
+    #     # sort by the document length
+    #     sorted_index = len_argsort(in_x1)
+    #     in_x1 = [in_x1[i] for i in sorted_index]
+    #     in_x2 = [in_x2[i] for i in sorted_index]
+    #     in_l = in_l[sorted_index]
+    #     in_y = [in_y[i] for i in sorted_index]
 
     return np.array(in_x1), np.array(in_x2), np.array(in_l), in_y
 
@@ -143,3 +137,4 @@ def load_glove_weights(glove_dir, embd_dim, vocab_size, word_index):
             embedding_matrix[i] = embedding_vector
 
     return embedding_matrix
+

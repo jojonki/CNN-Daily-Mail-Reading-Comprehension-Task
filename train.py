@@ -5,7 +5,7 @@ from keras import backend as K
 from process_data import load_data, build_dict, vectorize, load_glove_weights
 from net import Net
 
-N = 100000
+N = 300000
 N_d = int(N * 0.1)
 train_d, train_q, train_a = load_data('./dataset/cnn/train.txt', N, True)
 dev_d, dev_q, dev_a = load_data('./dataset/cnn/dev.txt', N_d, True)
@@ -39,9 +39,10 @@ embd_size = 100
 rnn_half_hidden_size = 64
 glove_embd_w = load_glove_weights('./dataset', 100, vocab_size, word_dict)
 model = Net(vocab_size, embd_size, rnn_half_hidden_size, glove_embd_w, doc_maxlen, query_maxlen, len(entity_dict))
-# print(model.summary())
+print(model.summary())
 model.fit([v_train_d, v_train_q], v_train_y,
             batch_size=32,
             epochs=10,
             validation_data=([v_dev_d, v_dev_q], v_dev_y)
         )
+
