@@ -1,5 +1,5 @@
 # CNN-Daily-Mail-Reading-Comprehension-Task
-Here is a reproducint repositry of below paper by Keras.
+Here is a reproduction repositry of following paper by Keras.
 
 A Thorough Examination of the CNN/Daily Mail Reading Comprehension Task
 Danqi Chen, Jason Bolton, Christopher D. Manning
