@@ -6,7 +6,7 @@ from keras.layers.normalization import BatchNormalization
 from keras.optimizers import SGD
 from keras import regularizers
 
-def Net(vocab_size, embd_size, rnn_h_size, doc_maxlen, query_maxlen, num_labels):
+def Net(vocab_size, embd_size, rnn_h_size, glove_embd_w, doc_maxlen, query_maxlen, num_labels):
     print('vocab', vocab_size)
     print('embd', embd_size)
     print('rnn_h_size', rnn_h_size)
@@ -14,7 +14,11 @@ def Net(vocab_size, embd_size, rnn_h_size, doc_maxlen, query_maxlen, num_labels)
     print('query maxlen', query_maxlen)
     in_doc = Input((doc_maxlen,), name='Doc_Input')
     in_q = Input((query_maxlen,), name='Q_Input')
-    embd_layer = Embedding(input_dim=vocab_size, output_dim=embd_size, name='shared_embd')
+    embd_layer = Embedding(input_dim=vocab_size, 
+                           output_dim=embd_size, 
+                           weights=[glove_embd_w], 
+                           trainable=False,
+                           name='shared_embd')
     embd_doc = embd_layer(in_doc) # (?, 10418, 100)  (?, doc_maxlen, embd_size)
     embd_doc = Dropout(0.2)(embd_doc)
     embd_q = embd_layer(in_q) #  (?, 115, 100), (?, q_maxlen, embd_size)

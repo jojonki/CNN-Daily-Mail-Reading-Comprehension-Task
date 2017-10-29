@@ -1,5 +1,6 @@
 from collections import Counter
 import numpy as np
+import os
 
 def load_data(in_file, max_example=None, relabeling=True):
     """
@@ -13,7 +14,7 @@ def load_data(in_file, max_example=None, relabeling=True):
     num_examples = 0
     f = open(in_file, 'r')
     while True:
-        if num_examples % 10000 == 0: print('n_examples:', num_examples)
+        if num_examples % 10000 == 0: print('load_data: n_examples:', num_examples)
         line = f.readline()
         if not line:
             break
@@ -107,7 +108,7 @@ def vectorize(doc, query, ans, word_dict, entity_dict, doc_maxlen, q_maxlen,
             if a in entity_dict:
                 y[entity_dict[a]] = 1
         if idx % 10000 == 0:
-            print('Vectorization: processed %d / %d' % (idx, len(doc)))
+            print('vectorize: Vectorization: processed %d / %d' % (idx, len(doc)))
 
     def len_argsort(seq):
         return sorted(range(len(seq)), key=lambda x: len(seq[x]))
@@ -121,3 +122,24 @@ def vectorize(doc, query, ans, word_dict, entity_dict, doc_maxlen, q_maxlen,
 #         in_y = [in_y[i] for i in sorted_index]
 
     return np.array(in_x1), np.array(in_x2), np.array(in_l), in_y
+
+def load_glove_weights(glove_dir, embd_dim, vocab_size, word_index):
+    embeddings_index = {}
+    f = open(os.path.join(glove_dir, 'glove.6B.' + str(embd_dim) + 'd.txt'))
+    for line in f:
+        values = line.split()
+        word = values[0]
+        coefs = np.asarray(values[1:], dtype='float32')
+        embeddings_index[word] = coefs
+    f.close()
+
+    print('Found %s word vectors.' % len(embeddings_index)) 
+    embedding_matrix = np.zeros((vocab_size, embd_dim))
+    print('embed_matrix.shape', embedding_matrix.shape)
+    for word, i in word_index.items():
+        embedding_vector = embeddings_index.get(word)
+        if embedding_vector is not None:
+            # words not found in embedding index will be all-zeros.
+            embedding_matrix[i] = embedding_vector
+
+    return embedding_matrix

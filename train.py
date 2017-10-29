@@ -2,7 +2,7 @@ import numpy as np
 
 from keras import backend as K
 
-from process_data import load_data, build_dict, vectorize
+from process_data import load_data, build_dict, vectorize, load_glove_weights
 from net import Net
 
 N = 100000
@@ -33,9 +33,12 @@ print('vectroized shape')
 print(v_train_d.shape, v_train_q.shape, v_train_y.shape)
 print(v_dev_d.shape, v_dev_q.shape, v_dev_y.shape)
 
-vocab_size = len(word_dict)
+vocab_size = max(word_dict.values()) + 1 
+print('vocab_size:', vocab_size)
 embd_size = 100
-model = Net(vocab_size, embd_size, 64, doc_maxlen, query_maxlen, len(entity_dict))
+rnn_half_hidden_size = 64
+glove_embd_w = load_glove_weights('./dataset', 100, vocab_size, word_dict)
+model = Net(vocab_size, embd_size, rnn_half_hidden_size, glove_embd_w, doc_maxlen, query_maxlen, len(entity_dict))
 # print(model.summary())
 model.fit([v_train_d, v_train_q], v_train_y,
             batch_size=32,
