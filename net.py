@@ -3,6 +3,7 @@ from keras.layers.embeddings import Embedding
 from keras.layers import Input, Activation, Dense, Lambda, Permute, Dropout, add, multiply, dot
 from keras.layers import GRU, Bidirectional, TimeDistributed
 from keras.layers.normalization import BatchNormalization
+from keras.optimizers import SGD
 from keras import regularizers
 
 def Net(vocab_size, embd_size, rnn_h_size, doc_maxlen, query_maxlen, num_labels):
@@ -15,7 +16,9 @@ def Net(vocab_size, embd_size, rnn_h_size, doc_maxlen, query_maxlen, num_labels)
     in_q = Input((query_maxlen,), name='Q_Input')
     embd_layer = Embedding(input_dim=vocab_size, output_dim=embd_size, name='shared_embd')
     embd_doc = embd_layer(in_doc) # (?, 10418, 100)  (?, doc_maxlen, embd_size)
+    embd_doc = Dropout(0.2)(embd_doc)
     embd_q = embd_layer(in_q) #  (?, 115, 100), (?, q_maxlen, embd_size)
+    embd_q = Dropout(0.2)(embd_q)
     
     print('emb q', embd_q.shape) 
     print('embd doc', embd_doc.shape) 
@@ -36,6 +39,6 @@ def Net(vocab_size, embd_size, rnn_h_size, doc_maxlen, query_maxlen, num_labels)
     answer = Activation('softmax')(Dense(num_labels)(o))
     print('answer', answer.shape)
     model = Model(inputs=[in_doc, in_q], outputs=answer, name='attention_model')
-    model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy']) 
+    model.compile(optimizer=SGD(lr=0.1, clipnorm=10.), loss='categorical_crossentropy', metrics=['accuracy']) 
     return model
 
